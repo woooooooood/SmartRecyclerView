@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <CheckBox
+        android:id="@+id/checkbox"
+        android:layout_width="200px"
+        android:layout_height="200px"
+        android:background="#3939dd"/>
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="200px"
+        android:layout_toRightOf="@id/checkbox"
+        android:gravity="center"
+        android:background="#cccccc"/>
+</RelativeLayout>
