@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.ArrayMap;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 
 import com.smos.smartlistview.SectionItemArray;
@@ -25,9 +27,10 @@ import com.smos.smartlistview.SwipeItemListener;
 import java.util.ArrayList;
 
 
-public class MainActivity extends Activity{
+public class MainActivity extends Activity {
 
     public RecyclerView mRecyclerView;
+    private RecyclerView mGridView;
     private EditText mEtPos;
     private Button mBtnOpen;
     private Button mBtnEdit;
@@ -35,6 +38,7 @@ public class MainActivity extends Activity{
     private RelativeLayout topBar;
     SmartListViewManager mManager;
     public SelectModeEnabler mSelectModeEnabler;
+    private ListGridExchanger mListGridExchanger;
 
     private SelectModeEnabler.ModeChangingAnimatorCreator<LinearLayout> mAnimatorCreator =
             new SelectModeEnabler.ModeChangingAnimatorCreator<LinearLayout>() {
@@ -56,7 +60,6 @@ public class MainActivity extends Activity{
                         public void onAnimationUpdate(ValueAnimator animation) {
                             layoutParams.leftMargin = (int) animation.getAnimatedValue();
                             editableView.requestLayout();
-
                         }
                     });
 
@@ -72,14 +75,13 @@ public class MainActivity extends Activity{
         setContentView(R.layout.activity_main);
 
         initView();
-
-        //TODO
-        mSelectModeEnabler = new SelectModeEnabler(mRecyclerView, R.id.editableView,
-                mAnimatorCreator);
     }
 
     private void initView() {
         mRecyclerView = (RecyclerView) findViewById(R.id.rv);
+
+        initGridView();
+        initRadioGroup();
 
         topBar = (RelativeLayout) findViewById(R.id.topBar);
 
@@ -106,6 +108,11 @@ public class MainActivity extends Activity{
         int size = sectionItemArray.size();
         Log.d("ddd", "initView " + size);
         final SwipeMenuAdapter mAdapter = new SwipeMenuAdapter(this, mManager, mRecyclerView, sectionItemArray);
+
+
+        //TODO SelectModeEnabler
+        mSelectModeEnabler = new SelectModeEnabler(mRecyclerView, R.id.editableView,
+                mAnimatorCreator);
 
         //TODO StickyHeaderDecoration
         StickyHeaderDecoration mStickyHeaderDecoration = new StickyHeaderDecoration(mAdapter);
@@ -134,6 +141,9 @@ public class MainActivity extends Activity{
                 mAdapter.deleteSelectedData();
             }
         });
+
+        //TODO
+        mListGridExchanger = new ListGridExchanger(mRecyclerView, mGridView, R.id.ivThumb, R.id.iv);
     }
 
     private SectionItemArray initDataList() {
@@ -141,10 +151,41 @@ public class MainActivity extends Activity{
         for (int i = 0; i < 26; i++) {
             ArrayList<String> strings = new ArrayList<>();
             for (int j = 0; j < 2; j++) {
-                strings.add(String.valueOf((char)('a'+i)));
+                strings.add(String.valueOf((char) ('a' + i)));
             }
-            map.put(String.valueOf((char)('a'+i)),strings);
+            map.put(String.valueOf((char) ('a' + i)), strings);
         }
         return new SectionItemArray<>(map);
+    }
+
+    private void initGridView() {
+        mGridView = (RecyclerView) findViewById(R.id.rvGrid);
+        mGridView.setLayoutManager(new GridLayoutManager(this, 3));
+        mGridView.setAdapter(new GridViewAdapter(this));
+    }
+
+    private void initRadioGroup() {
+        RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.rbLinear:
+                        swapToList();
+                        break;
+                    case R.id.rbGrid:
+                        swapToGrid();
+                        break;
+                }
+            }
+        });
+    }
+
+    private void swapToGrid() {
+        mListGridExchanger.swapToGrid(null);
+    }
+
+    private void swapToList() {
+        mListGridExchanger.swapToList(null);
     }
 }
